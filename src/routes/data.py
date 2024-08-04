@@ -1,8 +1,7 @@
 from fastapi import FastAPI , APIRouter , Depends , UploadFile , status
 from helpers.config import  get_settings , Settings 
 import os 
-from controllers import DataController 
-from controllers import ProjectController 
+from controllers import DataController , ProjectController , ProcessController 
 from enums import ResponseSignal 
 
 from fastapi.responses import JSONResponse
@@ -74,4 +73,39 @@ async def upload_data(project_id : int
 async def process_file(project_id: str , process_request : ProcessRequest ):
      file_id =  process_request.file_id 
      chunck_size = process_request.chunck_size 
-     return file_id , chunck_size
+     overlap_size = process_request.overalp_size
+
+
+     try:
+          
+        process_controller = ProcessController(project_id= project_id)
+        file_content = process_controller.get_file_content(file_id=file_id)
+
+
+        chunks = process_controller.process_file_content(file_content 
+                                                        , file_id=file_id  
+                                                        ,chunk_size=chunck_size
+                                                        ,overlap_size=overlap_size)
+     
+        if len(chunks) == 0 or chunks == None :
+                
+                return JSONResponse( 
+                
+                status_code = status.HTTP_400_BAD_REQUEST,
+                content = {
+                    'Signal' : ResponseSignal.FileProcessingFailed.value  
+                }
+            )
+        
+        return chunks
+     
+     except:
+             return JSONResponse( 
+                
+                status_code = status.HTTP_400_BAD_REQUEST,
+                content = {
+                    'Signal' : ResponseSignal.FileProcessingFailed.value  
+                }
+            )
+          
+
