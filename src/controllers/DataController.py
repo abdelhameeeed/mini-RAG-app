@@ -14,14 +14,12 @@ class DataController(BaseController):
         super().__init__()
 
     def validate_uploaded_file(self , file : UploadFile ):
-
         if file.content_type not in self.app_settings.FILE_ALLOWED_EXTENSIONS :
             return False , ResponseSignal.FileTypeNotSupported 
-        
-
+    
         if file.size > self.app_settings.FILE_MAX_SIZE * 1048576 :
             return False , ResponseSignal.FileSizeExceeded 
-        
+    
         return True , ResponseSignal.FileUploadedSuccessfully
 
 
@@ -44,7 +42,7 @@ class DataController(BaseController):
             random_filename + "_" + cleaned_file_name 
         )
         
-        return new_file_name 
+        return new_file_name , random_filename + "_" + cleaned_file_name  
 
             
     

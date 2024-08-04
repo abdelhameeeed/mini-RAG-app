@@ -10,6 +10,9 @@ import os
 import aiofiles
 import logging
 
+from schemas.data import ProcessRequest 
+
+
 logger = logging.getLogger('uvicorn.error')
 
 
@@ -39,7 +42,7 @@ async def upload_data(project_id : int
 
     # project_dir_path = ProjectController().get_project_path(project_id)
     
-    file_path = DataController().generate_unique_filename(file.filename , str(project_id))
+    file_path , file_id = DataController().generate_unique_filename(file.filename , str(project_id))
     
     try:       
         async with aiofiles.open( file_path , mode='wb') as f:
@@ -47,7 +50,6 @@ async def upload_data(project_id : int
                 await f.write(chunk)
             
     except Exception as e :
-            
             logger.error( f"error while uploading file {e}")
             
             return JSONResponse( 
@@ -61,8 +63,15 @@ async def upload_data(project_id : int
         
     return JSONResponse (
         content = {
-                'Signal' : signal.value
+                'Signal' : signal.value , 
+                'file_id' : file_id 
             }
-        
-    )
+        )
 
+
+
+@data_router.post('/process/{project_id}')
+async def process_file(project_id: str , process_request : ProcessRequest ):
+     file_id =  process_request.file_id 
+     chunck_size = process_request.chunck_size 
+     return file_id , chunck_size
