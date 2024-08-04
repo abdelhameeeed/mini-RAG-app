@@ -10,4 +10,8 @@ class ResponseSignal(Enum):
     
     FileUploadFailed = "File Uploaded Failed"
     
+    FileProcessingFailed = "File Processing Failed"
+
+    FileProcessingSucess = "File Processing Sucess"
+    
     
